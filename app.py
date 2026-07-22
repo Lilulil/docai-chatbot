@@ -547,7 +547,7 @@ def get_embedding_model():
 @st.cache_resource(show_spinner=False)
 def get_anthropic_client():
     return anthropic.Anthropic(
-        base_url="https://agentrouter.org/v1"
+        base_url="https://agentrouter.org"
     )
 
 
