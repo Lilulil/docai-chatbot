@@ -1,0 +1,15 @@
+# Core app
+streamlit>=1.40.0
+python-dotenv>=1.0.1
+
+# Claude API
+anthropic>=0.49.0
+
+# Document parsing
+pypdf>=5.1.0
+python-docx>=1.1.2
+
+# Simple RAG: local embeddings + vector search
+sentence-transformers>=3.3.0
+faiss-cpu>=1.9.0
+numpy>=1.26.0
