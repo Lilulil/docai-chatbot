@@ -554,12 +554,19 @@ def get_anthropic_client():
 # --------------------------------------------------------------------------- #
 # Document reading
 # --------------------------------------------------------------------------- #
+import pdfplumber  # <-- Tambahkan ini di paling atas file (barengan sama import lain)
+
 def read_pdf(file):
     try:
-        reader = PdfReader(file)
-        return "\n".join((page.extract_text() or "") for page in reader.pages)
-    except Exception:
-        return "[Error reading PDF]"
+        text = ""
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+        return text if text else "[Error: No text found in PDF]"
+    except Exception as e:
+        return f"[Error reading PDF: {str(e)}]"
 
 
 def read_docx(file):
