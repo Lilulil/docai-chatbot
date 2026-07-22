@@ -26,9 +26,10 @@ APP_TITLE = "DocAI Pro"
 APP_ICON = "📄"
 
 MODEL_OPTIONS = {
-    "Claude Opus 4.6 (powerful)": "claude-opus-4-6",
-    "Claude Opus 4.7 (powerful)": "claude-opus-4-7",
-    "Claude Opus 4.8 (powerful)": "claude-opus-4-8",
+    "Claude Opus 4.6": "claude-opus-4-6",
+    "Claude Opus 4.7": "claude-opus-4-7",
+    "Claude Opus 4.8": "claude-opus-4-8",
+    "GPT-5.5": "gpt-5.5",
 }
 
 DEFAULT_SYSTEM_PROMPT = (
