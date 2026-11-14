@@ -7,7 +7,7 @@ DocAI Pro is a Streamlit-based RAG chatbot that lets users upload PDF, TXT, and 
 - Multi-file upload: PDF (pdfplumber + pypdf), TXT, and DOCX (python-docx).
 - Grounded answers: the system prompt directs the model to answer using ONLY the retrieved document context and to say it does not know when the answer is not present.
 - Retrieval pipeline: documents are chunked at 800 characters with 150 characters of overlap, embedded locally with `all-MiniLM-L6-v2`, and indexed in FAISS (`IndexFlatL2`). The top 4 chunks are retrieved per question.
-- Streaming answers from the Anthropic Messages API, with `max_tokens=1024`, using the official `anthropic` SDK pointed at an OpenAI/Anthropic-compatible gateway via a configurable `base_url`.
+- Streaming answers from the Anthropic Messages API, with `max_tokens=1024`, using the official `anthropic` SDK pointed at an Anthropic-compatible gateway via a configurable `base_url`.
 - Editable system prompt with four presets: Default, Formal, Casual, and Expert.
 - Model selector; the available list can be extended with the `CLAUDE_MODEL` environment variable.
 - Chat history kept across turns in the same session, with a reset button.

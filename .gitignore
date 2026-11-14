@@ -1,0 +1,21 @@
+.aider*
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# local data / editor
+*.db
+*.sqlite
+*.log
+.DS_Store
+.vscode/
+.idea/
+

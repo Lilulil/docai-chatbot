@@ -26,11 +26,12 @@ APP_TITLE = "DocAI Pro"
 APP_ICON = "📄"
 
 MODEL_OPTIONS = {
-    "Claude Opus 4.6": "claude-opus-4-6",
-    "Claude Opus 4.7": "claude-opus-4-7",
-    "Claude Opus 4.8": "claude-opus-4-8",
     "GPT-5.5": "gpt-5.5",
 }
+# Entries with an empty id would send model="" to the API, so only real ids are kept.
+_env_model = os.getenv("CLAUDE_MODEL", "").strip()
+if _env_model:
+    MODEL_OPTIONS[_env_model] = _env_model
 
 DEFAULT_SYSTEM_PROMPT = (
     "You are a helpful assistant. Answer the user's questions using ONLY the "
