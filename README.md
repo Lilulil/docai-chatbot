@@ -1,129 +1,111 @@
-# 📄 AI Document Chatbot
+# DocAI Pro
 
-A ready-to-sell, web-based AI chatbot that answers questions **grounded in the documents your client uploads**. Upload PDF / TXT / DOCX files and chat with them — powered by Claude and a simple built-in RAG (retrieval-augmented generation) pipeline.
+DocAI Pro is a Streamlit-based RAG chatbot that lets users upload PDF, TXT, and DOCX documents, then ask questions that are answered strictly from the uploaded content. It combines local sentence-transformer embeddings, FAISS retrieval, and the Anthropic Messages API into a single-file application suitable for demos, internal tools, or client deliverables in the AI automation space.
 
-Built with **Streamlit** so it runs in the browser with zero front-end work.
+## Features
 
----
+- Multi-file upload: PDF (pdfplumber + pypdf), TXT, and DOCX (python-docx).
+- Grounded answers: the system prompt directs the model to answer using ONLY the retrieved document context and to say it does not know when the answer is not present.
+- Retrieval pipeline: documents are chunked at 800 characters with 150 characters of overlap, embedded locally with `all-MiniLM-L6-v2`, and indexed in FAISS (`IndexFlatL2`). The top 4 chunks are retrieved per question.
+- Streaming answers from the Anthropic Messages API, with `max_tokens=1024`, using the official `anthropic` SDK pointed at an OpenAI/Anthropic-compatible gateway via a configurable `base_url`.
+- Editable system prompt with four presets: Default, Formal, Casual, and Expert.
+- Model selector; the available list can be extended with the `CLAUDE_MODEL` environment variable.
+- Chat history kept across turns in the same session, with a reset button.
+- Privacy: embeddings are computed locally, so document text is never sent to a third party for indexing; only the small retrieved context is sent to the model per question.
 
-## ✨ Features
+## How it works
 
-- **Multi-file upload** — PDF, TXT, and DOCX (multiple files at once)
-- **Chat grounded in the documents** — answers come from the uploaded content, not made-up
-- **Simple RAG** — documents are split into chunks, embedded locally, and the most relevant pieces are retrieved per question (handles large files)
-- **Customizable system prompt** — set the assistant's persona (e.g. *"You are a friendly customer-service assistant"*)
-- **Model choice** — switch between Claude Haiku (fast & cheap) and Claude Sonnet (smarter)
-- **Chat history** — the conversation is shown in the main window and remembered across turns
-- **Reset button** — start a fresh conversation anytime
-- **Clean, professional UI** — logo, title, and a tidy sidebar
-
-> **Note on privacy:** Embeddings are computed **locally** on the machine running the app (using `sentence-transformers`), so document text is only sent to Claude as the small retrieved context needed to answer each question.
-
----
-
-## 🚀 Quick Start
-
-### 1. Install Python
-Make sure you have **Python 3.10 or newer** installed. Check with:
-```bash
-python --version
+```
+                         Streamlit UI
+                              |
+                              v
+upload PDF/TXT/DOCX  -->  text extraction  -->  chunking (800/150)
+                              |
+                              v
+              local embeddings (all-MiniLM-L6-v2)
+                              |
+                              v
+                       FAISS IndexFlatL2
+                              |
+                              v
+                    retrieve top 4 chunks
+                              |
+                              v
+                  prompt with context  -->  streaming answer
 ```
 
-### 2. Install the dependencies
-From the project folder:
-```bash
-pip install -r requirements.txt
-```
-> The first run downloads a small embedding model (~90 MB). This happens once.
+## Tech stack
 
-### 3. Add your Claude API key
-1. Get a key from the [Anthropic Console](https://console.anthropic.com/) → **Settings → API Keys**.
-2. Copy the example env file and paste your key in:
-```bash
-cp .env.example .env
-```
-Then open `.env` and set:
-```
-ANTHROPIC_API_KEY=sk-ant-your-real-key-here
-```
+- Python 3.10+
+- Streamlit
+- Anthropic Python SDK
+- sentence-transformers
+- FAISS (faiss-cpu)
+- pdfplumber, pypdf
+- python-docx
+- python-dotenv
+- NumPy
 
-### 4. Run the app
-```bash
-streamlit run app.py
-```
-Your browser opens automatically at `http://localhost:8501`.
+## Quick start
 
----
+1. Install dependencies. The first run downloads a ~90 MB embedding model once.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 🧪 Testing it
+2. Copy the example environment file and add your Anthropic-compatible API key.
+   ```bash
+   cp .env.example .env
+   ```
+   Then set `ANTHROPIC_API_KEY` in `.env`.
 
-A sample document, `data.txt`, is included (an FAQ for a fictional "ACME Cloud" service).
+3. Run the app.
+   ```bash
+   streamlit run app.py
+   ```
+   The browser opens at `http://localhost:8501`.
 
-1. Start the app.
-2. In the sidebar, upload `data.txt`.
-3. Ask questions like:
-   - *"How much does the Business plan cost?"*
-   - *"How long are deleted files kept on the free plan?"*
-   - *"What encryption do you use?"*
-   - *"Can I get a refund?"*
+## Configuration
 
-The chatbot will answer using only the document's content.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | Yes | API key for the Anthropic-compatible gateway. |
+| `CLAUDE_MODEL` | No | Extra model ID appended to the model selector. |
 
----
-
-## 🎨 Customizing for a client
-
-Everything a client typically wants to change is easy to reach:
+## Customization
 
 | What to change | Where |
-|---|---|
-| Assistant persona / tone | **System prompt** box in the sidebar (or `DEFAULT_SYSTEM_PROMPT` in `app.py`) |
-| Available models | `MODEL_OPTIONS` in `app.py` |
-| App title / logo emoji | `APP_TITLE` and `APP_ICON` in `app.py` |
-| Chunk size / retrieval count | `CHUNK_SIZE`, `TOP_K` in `app.py` |
-| Answer length | `MAX_TOKENS` in `app.py` |
+| --- | --- |
+| System prompt / tone | Sidebar text area or `DEFAULT_SYSTEM_PROMPT` in `app.py`. |
+| Available models | `MODEL_OPTIONS` in `app.py` or the `CLAUDE_MODEL` env variable. |
+| App title and icon | `APP_TITLE` and `APP_ICON` in `app.py`. |
+| Chunk size and retrieval depth | `CHUNK_SIZE`, `CHUNK_OVERLAP`, and `TOP_K` in `app.py`. |
+| Answer length | `MAX_TOKENS` in `app.py`. |
 
----
+## Try it
 
-## 💰 Cost notes (for reselling)
+A sample document, `data.txt` (a fictional ACME Cloud FAQ), is included. Upload it and ask questions such as:
 
-- **Embeddings are free** — they run locally, no per-use cost.
-- **Claude API usage is pay-as-you-go.** Haiku is the cheapest option and is a great default for a "Basic" package. You (or your client) pay Anthropic only for the questions asked.
-- Set spending limits in the Anthropic Console to stay in control.
+- "How much does the Business plan cost?"
+- "What encryption do you use?"
+- "How long are deleted files kept on the Free plan?"
 
----
+## Deployment
 
-## 📦 Deployment options
+Run locally with `streamlit run app.py`. For hosted deployment on Streamlit Community Cloud or any VPS, set the API key as an environment variable or secret rather than relying on a `.env` file.
 
-- **Local / demo:** `streamlit run app.py` (what this README covers).
-- **Share online:** deploy free on [Streamlit Community Cloud](https://streamlit.io/cloud), or on any VPS. Set `ANTHROPIC_API_KEY` as a secret/environment variable there instead of using a `.env` file.
+## Project structure
 
----
+| File | Purpose |
+| --- | --- |
+| `app.py` | Complete Streamlit application: document loading, chunking, embeddings, FAISS retrieval, and streaming chat UI. |
+| `requirements.txt` | Python dependencies. |
+| `.env.example` | Template for environment variables. |
+| `data.txt` | Sample document for testing. |
+| `README.md` | This file. |
 
-## 🛠️ Troubleshooting
+## Notes and limitations
 
-| Problem | Fix |
-|---|---|
-| *"No ANTHROPIC_API_KEY found"* | Make sure `.env` exists and contains a valid key, then restart the app. |
-| Upload says "No readable text found" | Scanned/image-only PDFs have no extractable text. Use a text-based PDF or run OCR first. |
-| First run is slow | The embedding model downloads once (~90 MB). Later runs are fast. |
-| `faiss` install issues | Ensure you're on 64-bit Python 3.10+. Reinstall with `pip install faiss-cpu`. |
-
----
-
-## 📁 Project structure
-
-```
-ai-document-chatbot/
-├── app.py              # Main Streamlit application
-├── requirements.txt    # Python dependencies
-├── .env.example        # Template for your API key
-├── data.txt            # Sample document for testing
-└── README.md           # This file
-```
-
----
-
-## 📄 License
-
-You are free to sell and modify this project as part of your services.
+- Scanned or image-only PDFs contain no extractable text and require OCR first.
+- The FAISS index is held in memory and rebuilt per session, so nothing persists between runs.
+- Keep the API key out of version control; `.env` should be gitignored.
